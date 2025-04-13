@@ -7,8 +7,9 @@
 
 （防止班主任在学生不知情的情况下使用希沃白板监视班级情况）
 
-你问为什么要检测火绒弹窗？
-因为不会驱动钩子...
+你问为什么要检测火绒弹窗？因为不会驱动钩子...
+
+另外项目名称 SeewoServant 灵感来自 Civil Servant 的谐音（谐音梗扣钱
 
 ## 📌 核心功能
 
@@ -69,11 +70,11 @@ cooldown = 2
 ```mermaid
 sequenceDiagram
     Loop 持续检测
-        WinGuard->>Windows API: EnumWindows()
-        Windows API-->>WinGuard: 返回窗口句柄列表
-        WinGuard->>WinGuard: 验证类名/标题匹配
+        SeewoServantLite->>Windows API: EnumWindows()
+        Windows API-->>SeewoServantLite: 返回窗口句柄列表
+        SeewoServantLite->>SeewoServantLite: 验证类名/标题匹配
         alt 发现目标窗口
-            WinGuard->>UDP Client: 发送告警数据
+            SeewoServantLite->>UDP Client: 发送告警数据
             UDP Client->>Network: 广播消息
         end
     end
@@ -91,13 +92,13 @@ sequenceDiagram
 # 安装打包工具
 pip install pyinstaller
 
-# 打包程序（生成dist/main.exe）
-pyinstaller --onefile --noconsole --icon=shield.ico main.py
+# 打包程序（生成dist/tray_icon.exe）
+pyinstaller --onefile --noconsole --icon=shield.ico tray_icon.py
 ```
 
 ## ⚠️ 注意事项
 
-1. 首次运行时需允许防火墙通过UDP通信
+1. 首次运行时需允许防火墙通过 UDP 通信
 2. 实际类名/标题需根据本地火绒版本调整
 
 ## 📜 开源协议
