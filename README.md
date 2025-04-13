@@ -48,9 +48,10 @@ python tray_icon.py
 target_class = ATL:00007FF637DAA9A0
 title_keyword = 这里留空就好，火绒的隐私设备保护弹窗没有标题
 check_interval = 0.5
+HEARTBEAT_INTERVAL = 60
 
 [Network]
-udp_ip = 255.255.255.255
+udp_ip = 192.168.137.247
 udp_port = 5005
 cooldown = 2
 ```
@@ -63,6 +64,7 @@ cooldown = 2
 | udp_ip          | UDP目标地址                 | 255.255.255.255      |
 | udp_port        | UDP端口                     | 5005                 |
 | cooldown        | 告警冷却时间（秒）           | 2                    |
+| heartbeat_interval | 心跳间隔时间（秒）         | 60                   |
 
 ## 🔧 技术实现
 
@@ -93,7 +95,7 @@ sequenceDiagram
 pip install pyinstaller
 
 # 打包程序（生成dist/tray_icon.exe）
-pyinstaller --onefile --noconsole --icon=shield.ico tray_icon.py
+pyinstaller --noconsole --onefile --icon=resources/icon.ico --add-data "resources/icon.ico;resources" tray_icon.py
 ```
 
 ## ⚠️ 注意事项

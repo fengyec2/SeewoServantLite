@@ -8,20 +8,29 @@ class Sentinel:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.last_sent = 0
+        self.last_heartbeat = 0  # 新增心跳时间戳记录
 
     def detect_popup(self):
         """使用FindWindow检测目标窗口"""
         hwnd = win32gui.FindWindow(TARGET_CLASS, None)
-        return hwnd != 0  # 仅检测类名存在即可
+        return hwnd != 0
 
     def run(self):
         while getattr(self, "running", True):
             try:
+                current_time = time.time()
+                
+                # 心跳检测逻辑（新增部分）
+                if current_time - self.last_heartbeat >= HEARTBEAT_INTERVAL:
+                    self.send_heartbeat()
+                    self.last_heartbeat = current_time
+                
+                # 原有弹窗检测逻辑
                 if self.detect_popup():
-                    current_time = time.time()
                     if current_time - self.last_sent > COOLDOWN:
                         self.send_alert()
                         self.last_sent = current_time
+                
                 time.sleep(CHECK_INTERVAL)
             except Exception as e:
                 print(f"检测异常: {str(e)}")
@@ -31,6 +40,12 @@ class Sentinel:
         """发送UDP警报"""
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         message = f"[ALERT] {timestamp} 检测到隐私访问"
+        self.sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+
+    def send_heartbeat(self):
+        """新增心跳发送方法"""
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        message = f"[HEARTBEAT] {timestamp} 检测端正常运行"
         self.sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
 
     def stop(self):
