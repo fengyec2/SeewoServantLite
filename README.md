@@ -42,23 +42,24 @@ python main.py
 
 ## ⚙️ 配置说明
 
-编辑 `config.py` 文件：
-```python
-# 窗口检测配置
-TARGET_CLASS = "ATL:00007FF637DAA9A0"  # 替换成你的目标弹窗类名
-CHECK_INTERVAL = 0.5  # 秒
-
-# 网络配置
-HEARTBEAT_INTERVAL = 60  # 秒
-COOLDOWN = 2  # 秒
+编辑 `config.json` 文件：
+```json
+{
+    "TARGET_CLASS": "ATL:00007FF637DAA9A0",
+    "CHECK_INTERVAL": 0.5,
+    "HEARTBEAT_INTERVAL": 60,
+    "COOLDOWN": 2,
+    "TRAY_TOOLTIP": "火绒剑"
+  }
 ```
 
-| 参数            | 说明                         | 示例值                |
-|-----------------|----------------------------|----------------------|
-| target_class    | 目标窗口类名（需用Spy++获取） | ATL:00007FF637DAA9A0 |
-| check_interval  | 检测间隔（秒）               | 0.5                  |
-| heartbeat_interval | 心跳间隔时间（秒）         | 60                   |
-| cooldown        | 告警冷却时间（秒）           | 2                    |
+| 参数                | 说明                        | 示例值                |
+|---------------------|----------------------------|----------------------|
+| target_class        | 目标窗口类名                | ATL:00007FF637DAA9A0 |
+| check_interval      | 检测间隔（秒）               | 0.5                  |
+| heartbeat_interval  | 心跳间隔时间（秒）           | 60                   |
+| cooldown            | 告警冷却时间（秒）           | 2                    |
+| tray_tootip         | 托盘图标显示名称             | 火绒剑                |
 
 ## 🔧 技术实现
 
@@ -88,8 +89,8 @@ sequenceDiagram
 # 安装打包工具
 pip install pyinstaller
 
-# 打包程序（生成dist/tray_icon.exe）
-pyinstaller --noconsole --onefile --icon=resources/icon.ico --add-data "resources/icon.ico;resources" tray_icon.py
+# 打包程序（生成dist/main.exe）
+pyinstaller --onefile --windowed --icon="resources/icon.ico" --add-data "resources/icon.ico;resources" --add-data "config.json;." main.py
 ```
 
 ## ⚠️ 注意事项

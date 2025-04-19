@@ -1,6 +1,0 @@
-# 窗口检测配置
-TARGET_CLASS = "ATL:00007FF637DAA9A0"  # 替换成你的目标弹窗类名
-CHECK_INTERVAL = 0.5  # 秒
-# 网络配置
-HEARTBEAT_INTERVAL = 60  # 秒
-COOLDOWN = 2  # 秒
