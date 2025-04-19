@@ -60,7 +60,12 @@ class Sentinel:
 
     def detect_popup(self):
         hwnd = win32gui.FindWindow(TARGET_CLASS, None)
-        return hwnd != 0
+        if hwnd != 0:
+            # print(f"检测到窗口: {TARGET_CLASS}")
+            return True
+        else:
+            # print(f"未检测到窗口: {TARGET_CLASS}")
+            return False
 
     async def send_alert(self):
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
