@@ -5,6 +5,18 @@ import threading
 import asyncio
 import websockets
 from config import *
+import json
+
+def load_config(filepath='config.json'):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+config = load_config()
+
+TARGET_CLASS = config.get("TARGET_CLASS", "ATL:00007FF637DAA9A0")
+CHECK_INTERVAL = config.get("CHECK_INTERVAL", 0.5)
+HEARTBEAT_INTERVAL = config.get("HEARTBEAT_INTERVAL", 60)
+COOLDOWN = config.get("COOLDOWN", 2)
 
 CLIENTS = set()
 CLIENTS_LOCK = threading.Lock()
