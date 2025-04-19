@@ -7,6 +7,8 @@
 
 （防止班主任在学生不知情的情况下使用希沃白板监视班级情况）
 
+[安卓客户端](https://github.com/fengyec2/SeewoServantApp/)
+
 你问为什么要检测火绒弹窗？因为不会驱动钩子...
 
 另外项目名称 SeewoServant 灵感来自 Civil Servant 的谐音（谐音梗扣钱
@@ -48,7 +50,7 @@ python main.py
     "TARGET_CLASS": "ATL:00007FF637DAA9A0",
     "CHECK_INTERVAL": 0.5,
     "HEARTBEAT_INTERVAL": 60,
-    "COOLDOWN": 2,
+    "COOLDOWN": 5,
     "TRAY_TOOLTIP": "火绒剑"
   }
 ```
@@ -58,7 +60,7 @@ python main.py
 | target_class        | 目标窗口类名                | ATL:00007FF637DAA9A0 |
 | check_interval      | 检测间隔（秒）               | 0.5                  |
 | heartbeat_interval  | 心跳间隔时间（秒）           | 60                   |
-| cooldown            | 告警冷却时间（秒）           | 2                    |
+| cooldown            | 告警冷却时间（秒）           | 5                    |
 | tray_tootip         | 托盘图标显示名称             | 火绒剑                |
 
 ## 🔧 技术实现
