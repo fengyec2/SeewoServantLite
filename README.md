@@ -1,9 +1,9 @@
 # SeewoServantLite
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GPLv3 License](https://img.shields.io/badge/license-GPLv3-brightgreen)](https://www.gnu.org/licenses/gpl-3.0)
 
-实时监控火绒的隐私设备保护弹窗并通过UDP发送告警的小玩意
+实时监控火绒的隐私设备保护弹窗并通过 Websocket 发送告警的小玩意
 
 （防止班主任在学生不知情的情况下使用希沃白板监视班级情况）
 
@@ -14,7 +14,7 @@
 ## 📌 核心功能
 
 - 🔍 实时检测火绒安全弹窗（支持摄像头/麦克风等隐私设备）
-- 📡 基于UDP协议的即时告警通知
+- 📡 基于 Websocket 的即时告警通知
 - ⚙️ 高度可配置的检测参数
 
 ## 🚀 快速开始
@@ -37,34 +37,28 @@ pip install -r requirements.txt
 ### 基础使用
 ```bash
 # 直接运行
-python tray_icon.py
+python main.py
 ```
 
 ## ⚙️ 配置说明
 
-编辑 `config.ini` 文件：
-```ini
-[Detection]
-target_class = ATL:00007FF637DAA9A0
-title_keyword = 这里留空就好，火绒的隐私设备保护弹窗没有标题
-check_interval = 0.5
-HEARTBEAT_INTERVAL = 60
+编辑 `config.py` 文件：
+```python
+# 窗口检测配置
+TARGET_CLASS = "ATL:00007FF637DAA9A0"  # 替换成你的目标弹窗类名
+CHECK_INTERVAL = 0.5  # 秒
 
-[Network]
-udp_ip = 192.168.137.247
-udp_port = 5005
-cooldown = 2
+# 网络配置
+HEARTBEAT_INTERVAL = 60  # 秒
+COOLDOWN = 2  # 秒
 ```
 
 | 参数            | 说明                         | 示例值                |
 |-----------------|----------------------------|----------------------|
 | target_class    | 目标窗口类名（需用Spy++获取） | ATL:00007FF637DAA9A0 |
-| title_keyword   | 标题包含的关键词              |                       |
 | check_interval  | 检测间隔（秒）               | 0.5                  |
-| udp_ip          | UDP目标地址                 | 255.255.255.255      |
-| udp_port        | UDP端口                     | 5005                 |
-| cooldown        | 告警冷却时间（秒）           | 2                    |
 | heartbeat_interval | 心跳间隔时间（秒）         | 60                   |
+| cooldown        | 告警冷却时间（秒）           | 2                    |
 
 ## 🔧 技术实现
 
@@ -76,16 +70,16 @@ sequenceDiagram
         Windows API-->>SeewoServantLite: 返回窗口句柄列表
         SeewoServantLite->>SeewoServantLite: 验证类名/标题匹配
         alt 发现目标窗口
-            SeewoServantLite->>UDP Client: 发送告警数据
-            UDP Client->>Network: 广播消息
+            SeewoServantLite->>Websockets Server: 发送告警数据
+            Websockets Server->>Network: 广播消息
         end
     end
 ```
 
 ### 依赖组件
-- `win32gui`: Windows GUI接口调用
+- `win32gui`: Windows GUI 接口调用
 - `pyinstaller`: 打包为可执行文件
-- `psutil`: 进程管理
+- `websockets`: 提供 Websocket 网络服务（不要用最新版的）
 
 ## 📦 项目打包
 
@@ -100,8 +94,8 @@ pyinstaller --noconsole --onefile --icon=resources/icon.ico --add-data "resource
 
 ## ⚠️ 注意事项
 
-1. 首次运行时需允许防火墙通过 UDP 通信
-2. 实际类名/标题需根据本地火绒版本调整
+1. 首次运行时需允许防火墙通过通信
+2. 实际类名需根据本地火绒版本调整
 
 ## 📜 开源协议
 

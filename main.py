@@ -1,58 +1,92 @@
 import win32gui
-import socket
 import time
 from datetime import datetime
+import threading
+import asyncio
+import websockets
 from config import *
+
+CLIENTS = set()
+CLIENTS_LOCK = threading.Lock()
+
+async def notify_clients(message: str):
+    with CLIENTS_LOCK:
+        clients = list(CLIENTS)
+    if clients:
+        await asyncio.wait([client.send(message) for client in clients])
+
+async def handler(websocket, path):
+    with CLIENTS_LOCK:
+        CLIENTS.add(websocket)
+    print(f"客户端连接: {websocket.remote_address}")
+    try:
+        async for message in websocket:
+            print(f"收到客户端消息: {message}")
+    except websockets.ConnectionClosed:
+        pass
+    finally:
+        with CLIENTS_LOCK:
+            CLIENTS.remove(websocket)
+        print(f"客户端断开: {websocket.remote_address}")
 
 class Sentinel:
     def __init__(self):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.last_sent = 0
-        self.last_heartbeat = 0  # 新增心跳时间戳记录
+        self.last_heartbeat = 0
+        self.running = True
 
     def detect_popup(self):
-        """使用FindWindow检测目标窗口"""
         hwnd = win32gui.FindWindow(TARGET_CLASS, None)
         return hwnd != 0
 
-    def run(self):
-        while getattr(self, "running", True):
-            try:
-                current_time = time.time()
-                
-                # 心跳检测逻辑（新增部分）
-                if current_time - self.last_heartbeat >= HEARTBEAT_INTERVAL:
-                    self.send_heartbeat()
-                    self.last_heartbeat = current_time
-                
-                # 原有弹窗检测逻辑
-                if self.detect_popup():
-                    if current_time - self.last_sent > COOLDOWN:
-                        self.send_alert()
-                        self.last_sent = current_time
-                
-                time.sleep(CHECK_INTERVAL)
-            except Exception as e:
-                print(f"检测异常: {str(e)}")
-                time.sleep(5)
-
-    def send_alert(self):
-        """发送UDP警报"""
+    async def send_alert(self):
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         message = f"[ALERT] {timestamp} 检测到隐私访问"
-        self.sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+        print(f"发送警报消息: {message}")
+        await notify_clients(message)
 
-    def send_heartbeat(self):
-        """新增心跳发送方法"""
+    async def send_heartbeat(self):
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         message = f"[HEARTBEAT] {timestamp} 检测端正常运行"
-        self.sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
+        print(f"发送心跳消息: {message}")
+        await notify_clients(message)
+
+    async def run_loop(self):
+        while self.running:
+            current_time = time.time()
+
+            if current_time - self.last_heartbeat >= HEARTBEAT_INTERVAL:
+                await self.send_heartbeat()
+                self.last_heartbeat = current_time
+
+            if self.detect_popup():
+                if current_time - self.last_sent > COOLDOWN:
+                    await self.send_alert()
+                    self.last_sent = current_time
+
+            await asyncio.sleep(CHECK_INTERVAL)
 
     def stop(self):
-        """停止监控"""
         self.running = False
-        self.sock.close()
+        print("服务已停止")
+
+async def main():
+    sentinel = Sentinel()
+
+    server = await websockets.serve(handler, "0.0.0.0", 8765)
+    print("WebSocket服务器启动，监听端口 8765")
+
+    sentinel_task = asyncio.create_task(sentinel.run_loop())
+
+    try:
+        await asyncio.Future()  # 程序阻塞直到取消
+    except KeyboardInterrupt:
+        print("收到退出信号，正在关闭...")
+    finally:
+        sentinel.stop()
+        sentinel_task.cancel()
+        server.close()
+        await server.wait_closed()
 
 if __name__ == "__main__":
-    sentinel = Sentinel()
-    sentinel.run()
+    asyncio.run(main())
