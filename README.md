@@ -89,8 +89,8 @@ sequenceDiagram
 # 安装打包工具
 pip install pyinstaller
 
-# 打包程序（生成dist/main.exe）
-pyinstaller --onefile --windowed --icon="resources/icon.ico" --add-data "resources/icon.ico;resources" --add-data "config.json;." main.py
+# 打包程序
+pyinstaller --windowed --icon="resources/icon.ico" --add-data "resources/icon.ico;resources" --add-data "config.json;." main.py
 ```
 
 ## ⚠️ 注意事项
